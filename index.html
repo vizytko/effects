@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Галерея ефектів — Vizytko Effects Lab</title>
+<meta name="description" content="Демо ефектів для сайтів: 3D-фон, анімований текст, магнітні кнопки, ефекти наведення. Зроблено на чистому HTML, CSS і JavaScript.">
+<meta name="theme-color" content="#07070C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%237C3AED'/%3E%3Cpath d='M9 10l7 13 7-13' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Lumen Lab: чорне тло, фіолетово-блакитна гама, дрібні «живі» деталі. Усі ефекти написані з нуля на чистому JS/CSS. */
+@property --a { syntax: "<angle>"; initial-value: 0deg; inherits: false }
+:root{
+  --bg:#07070C; --bg2:#0E0E17; --card:#12121D; --line:rgba(255,255,255,.09);
+  --fg:#ECECF4; --muted:#9A9AB2; --v:#8B5CF6; --c:#22D3EE; --p:#F472B6;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"DM Sans", "Segoe UI", system-ui, sans-serif;
+  --grad:linear-gradient(100deg,#8B5CF6,#22D3EE 55%,#F472B6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{overflow-x:clip}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+h1,h2,h3{font-family:var(--display);line-height:1.04;letter-spacing:-.025em;text-wrap:balance}
+h2{font-size:clamp(34px,5vw,60px);font-weight:800}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--grad);border-radius:2px}
+.lead{color:var(--muted);font-size:clamp(17px,1.6vw,20px);max-width:58ch}
+section{position:relative;padding:110px 0}
+.head{display:flex;flex-direction:column;gap:16px;margin-bottom:54px}
+.gt{background:var(--grad);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shift 6s ease-in-out infinite alternate}
+@keyframes shift{to{background-position:100% 0}}
+
+/* курсорне світіння */
+.cur{position:fixed;left:0;top:0;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;pointer-events:none;z-index:0;
+  background:radial-gradient(circle,rgba(139,92,246,.16),transparent 62%);transition:opacity .3s;opacity:0;will-change:transform}
+
+/* шапка */
+header.top{position:fixed;top:0;left:0;right:0;z-index:50;padding-top:env(safe-area-inset-top)}
+header.top::before{content:"";position:absolute;inset:0;background:rgba(7,7,12,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);opacity:0;transition:opacity .3s}
+header.top.solid::before{opacity:1}
+header.top .wrap{position:relative;display:flex;align-items:center;justify-content:space-between;height:74px}
+.logo{font-family:var(--display);font-weight:800;font-size:22px;display:flex;align-items:center;gap:10px}
+.logo i{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;font-style:normal;color:#07070C;font-size:16px}
+.lang{display:flex;padding:3px;border-radius:12px;border:1px solid var(--line);background:rgba(7,7,12,.55);backdrop-filter:blur(10px)}
+.lang button{font:700 12.5px var(--body);letter-spacing:.05em;color:var(--muted);background:none;border:0;border-radius:9px;padding:7px 11px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--fg);color:#07070C}
+.lang button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--c);outline-offset:3px}
+
+/* герой */
+.hero{min-height:100svh;display:flex;align-items:center;padding:130px 0 90px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 70% 20%,#1a1240,transparent 55%),var(--bg)}
+#vanta{position:absolute;inset:0;z-index:0}
+.hero::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(7,7,12,.78) 0%,rgba(7,7,12,.35) 55%,transparent 80%)}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:220px;background:linear-gradient(transparent,var(--bg));z-index:1;pointer-events:none}
+.hero .wrap{position:relative;z-index:2;display:flex;flex-direction:column;gap:30px}
+.badge{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(18,18,29,.6);backdrop-filter:blur(10px);font-size:14px;color:#D4D4E8}
+.badge b{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 0 rgba(34,211,238,.7);animation:ping 2s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 10px rgba(34,211,238,0)}100%{box-shadow:0 0 0 0 rgba(34,211,238,0)}}
+h1{font-size:clamp(46px,8vw,112px);font-weight:800;max-width:14ch;letter-spacing:-.018em}
+h1 .w{display:inline-block;opacity:0;transform:translateY(.55em) rotate(3deg);filter:blur(10px);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1),filter .8s;transition-delay:calc(var(--i) * 90ms + 150ms)}
+h1.in .w{opacity:1;transform:none;filter:none}
+.hero .lead{max-width:52ch;color:#B9B9D0}
+.row{display:flex;flex-wrap:wrap;gap:14px}
+.scroll-hint{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:3;width:26px;height:42px;border-radius:14px;border:2px solid rgba(255,255,255,.35)}
+.scroll-hint::after{content:"";position:absolute;left:50%;top:8px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:#fff;animation:wheel 1.8s infinite}
+@keyframes wheel{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+
+/* кнопки */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;font:700 16px var(--body);padding:17px 30px;border-radius:999px;border:0;cursor:pointer;color:var(--fg);transition:box-shadow .3s,background .3s;isolation:isolate;will-change:transform}
+.btn-main{background:var(--fg);color:#07070C}
+.btn-main:hover{box-shadow:0 0 0 6px rgba(236,236,244,.12),0 18px 50px -12px rgba(139,92,246,.7)}
+.btn-line{background:rgba(255,255,255,.04);border:1px solid var(--line);backdrop-filter:blur(8px)}
+.btn-line:hover{background:rgba(255,255,255,.1)}
+
+/* стрічка */
+.marquee{border-block:1px solid var(--line);padding:24px 0;overflow:hidden;background:var(--bg2)}
+.track{display:flex;gap:60px;width:max-content;animation:run 36s linear infinite}
+.track span{font-family:var(--display);font-weight:600;font-size:26px;color:#6C6C86;white-space:nowrap;display:flex;align-items:center;gap:60px}
+.track span::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--grad)}
+@keyframes run{to{transform:translateX(-50%)}}
+
+/* картки ефектів */
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.fx{position:relative;min-height:290px;border-radius:26px;background:var(--card);border:1px solid var(--line);padding:30px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;overflow:hidden;min-width:0}
+.fx h3{font-size:24px;position:relative;z-index:2}
+.fx p{color:var(--muted);font-size:15px;position:relative;z-index:2}
+.fx .tag{position:absolute;top:22px;left:26px;z-index:2;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7C7C98}
+/* 1 spotlight */
+.spot::before{content:"";position:absolute;inset:0;background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),rgba(139,92,246,.35),transparent 60%);opacity:0;transition:opacity .3s}
+.spot:hover::before{opacity:1}
+.spot::after{content:"";position:absolute;inset:1px;border-radius:25px;background:linear-gradient(var(--card),var(--card));z-index:0;opacity:.82}
+/* 2 tilt */
+.tilt{transform-style:preserve-3d;transition:transform .25s ease-out;background:linear-gradient(150deg,#1d1740,#0f1830)}
+.tilt .big{position:absolute;right:24px;top:20px;font-family:var(--display);font-weight:800;font-size:120px;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.35);transform:translateZ(50px)}
+.tilt::after{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--gx,50%) var(--gy,0%),rgba(255,255,255,.18),transparent 60%);pointer-events:none}
+/* 3 conic border */
+.ring{background:var(--bg);border:0}
+.ring::before{content:"";position:absolute;inset:0;border-radius:26px;padding:2px;background:conic-gradient(from var(--a),#8B5CF6,#22D3EE,#F472B6,#8B5CF6);animation:spin 5s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+@keyframes spin{to{--a:360deg}}
+.ring::after{content:"";position:absolute;left:50%;top:38%;width:130px;height:130px;margin:-65px;border-radius:50%;background:conic-gradient(from var(--a),#8B5CF6,#22D3EE,#F472B6,#8B5CF6);filter:blur(34px);opacity:.5;animation:spin 5s linear infinite}
+/* 4 scramble */
+.scr{background:#0A1210;cursor:crosshair}
+.scr .word{font-family:var(--display);font-weight:800;font-size:clamp(36px,4.6vw,56px);letter-spacing:.02em;color:#6EE7B7;text-shadow:0 0 24px rgba(110,231,183,.45);position:relative;z-index:2;white-space:nowrap}
+/* 5 magnetic */
+.mag-card{align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#231b4f,var(--card) 70%)}
+.mag-card .btn{position:relative;z-index:2}
+/* 6 aurora */
+.aur{background:#07070C}
+.aur i{position:absolute;border-radius:50%;filter:blur(46px);opacity:.75;animation:drift 9s ease-in-out infinite alternate}
+.aur i:nth-child(1){width:60%;aspect-ratio:1;left:-10%;top:-20%;background:#8B5CF6}
+.aur i:nth-child(2){width:50%;aspect-ratio:1;right:-10%;top:10%;background:#22D3EE;animation-delay:-3s}
+.aur i:nth-child(3){width:45%;aspect-ratio:1;left:25%;bottom:-30%;background:#F472B6;animation-delay:-6s}
+@keyframes drift{to{transform:translate(12%,10%) scale(1.15)}}
+.aur::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(7,7,12,.92))}
+
+/* лічильники */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:70px}
+.stat{padding:34px;border-radius:26px;border:1px solid var(--line);background:linear-gradient(180deg,var(--card),transparent)}
+.stat b{display:block;font-family:var(--display);font-weight:800;font-size:clamp(44px,6vw,76px);line-height:1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:15px}
+.note{margin-top:16px;color:#6C6C86;font-size:13px}
+
+/* текст, що спалахує при скролі */
+.lit{font-family:var(--display);font-weight:800;font-size:clamp(30px,4.6vw,60px);line-height:1.15;letter-spacing:-.02em;max-width:22ch}
+.lit span{opacity:.18;transition:opacity .25s}
+.lit span.on{opacity:1}
+
+/* лабораторія кнопок */
+.labgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.cell{display:grid;place-items:center;min-height:150px;border-radius:22px;border:1px solid var(--line);background:var(--bg2);padding:20px}
+.b1{background:#fff;color:#07070C;overflow:hidden}
+.b1::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(139,92,246,.55) 50%,transparent 70%);transform:translateX(-120%);animation:sheen 2.6s infinite}
+@keyframes sheen{60%,100%{transform:translateX(120%)}}
+.b2{background:transparent;border:2px solid var(--c);color:var(--c);box-shadow:0 0 18px rgba(34,211,238,.45),inset 0 0 18px rgba(34,211,238,.2);text-shadow:0 0 10px rgba(34,211,238,.8);transition:all .3s}
+.b2:hover{background:var(--c);color:#07070C;box-shadow:0 0 38px rgba(34,211,238,.9)}
+.b3{background:#1B1B2B;overflow:hidden;color:var(--fg);transition:color .35s}
+.b3::before{content:"";position:absolute;left:50%;top:100%;width:150%;aspect-ratio:1;border-radius:50%;background:var(--p);transform:translate(-50%,0);transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:-1}
+.b3:hover::before{transform:translate(-50%,-62%)}
+.b3:hover{color:#07070C}
+.b4{background:linear-gradient(#12121D,#12121D) padding-box,var(--grad) border-box;border:2px solid transparent;transition:filter .3s}
+.b4:hover{filter:drop-shadow(0 0 16px rgba(139,92,246,.7))}
+.b5{background:var(--v);gap:0;overflow:hidden;padding-right:24px}
+.b5 .arr{display:inline-block;width:0;opacity:0;overflow:hidden;transition:width .3s,opacity .3s,margin .3s;margin-left:0}
+.b5:hover .arr{width:22px;opacity:1;margin-left:10px}
+.b6{background:#22D3EE;color:#07070C;box-shadow:0 8px 0 #0E7490;transition:transform .1s,box-shadow .1s}
+.b6:active{transform:translateY(6px);box-shadow:0 2px 0 #0E7490}
+
+/* фінал */
+.cta{position:relative;overflow:hidden;text-align:center;padding:110px 30px;border-radius:40px;border:1px solid var(--line);background:#0A0A14}
+.cta i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:drift 10s ease-in-out infinite alternate}
+.cta i:nth-child(1){width:420px;height:420px;left:-100px;top:-120px;background:#8B5CF6}
+.cta i:nth-child(2){width:380px;height:380px;right:-80px;bottom:-140px;background:#22D3EE;animation-delay:-4s}
+.cta > *:not(i){position:relative}
+.cta h2{max-width:16ch;margin:0 auto 18px}
+.cta .lead{margin:0 auto 34px}
+.cta .row{justify-content:center}
+footer{padding:50px 0 calc(40px + env(safe-area-inset-bottom));color:#6C6C86;font-size:14px;text-align:center}
+
+/* поява */
+.js .rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.js .rv.in{opacity:1;transform:none}
+
+@media (max-width:980px){.grid,.labgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:620px){
+  section{padding:76px 0}
+  .grid,.labgrid{grid-template-columns:minmax(0,1fr)}
+  .fx{min-height:250px}
+  .scroll-hint{display:none}
+  .tilt .big{font-size:96px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv,h1 .w{opacity:1!important;transform:none!important;filter:none!important}
+  .lit span{opacity:1}
+}
+</style>
+</head>
+<body>
+<div class="cur" id="cur"></div>
+
+<header class="top"><div class="wrap">
+  <a href="#top" class="logo"><i>V</i>Effects Lab</a>
+  <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="uk" aria-pressed="true">UA</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+</div></header>
+
+<section class="hero" id="top">
+  <div id="vanta" aria-hidden="true"></div>
+  <div class="wrap">
+    <span class="badge"><b></b><span data-i="badge"></span></span>
+    <h1 id="h1"></h1>
+    <p class="lead" data-i="sub"></p>
+    <div class="row">
+      <a class="btn btn-main mag" href="https://t.me/andreyz076" target="_blank" rel="noopener" data-i="order"></a>
+      <a class="btn btn-line mag" href="#fx" data-i="see"></a>
+    </div>
+  </div>
+  <div class="scroll-hint" aria-hidden="true"></div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="track" id="track"></div></div>
+
+<section id="fx">
+  <div class="wrap">
+    <div class="head rv"><span class="eyebrow" data-i="e1"></span><h2 data-i="t1"></h2><p class="lead" data-i="l1"></p></div>
+    <div class="grid">
+      <article class="fx spot rv" data-spot><span class="tag">01</span><h3 data-i="c1t"></h3><p data-i="c1d"></p></article>
+      <article class="fx tilt rv" data-tilt><span class="tag">02</span><span class="big" aria-hidden="true">3D</span><h3 data-i="c2t"></h3><p data-i="c2d"></p></article>
+      <article class="fx ring rv"><span class="tag">03</span><h3 data-i="c3t"></h3><p data-i="c3d"></p></article>
+      <article class="fx scr rv" data-scr><span class="tag">04</span><div class="word" id="scr" tabindex="0">VIZYTKO</div><h3 data-i="c4t"></h3><p data-i="c4d"></p></article>
+      <article class="fx mag-card rv"><span class="tag">05</span><a class="btn btn-main mag" href="#btn" data-i="c5b"></a><h3 data-i="c5t" style="margin-top:22px"></h3><p data-i="c5d"></p></article>
+      <article class="fx aur rv"><i></i><i></i><i></i><span class="tag">06</span><h3 data-i="c6t"></h3><p data-i="c6d"></p></article>
+    </div>
+    <div class="stats">
+      <div class="stat rv"><b data-count="98" data-suf="%">0</b><span data-i="s1"></span></div>
+      <div class="stat rv"><b data-count="1200" data-suf="+">0</b><span data-i="s2"></span></div>
+      <div class="stat rv"><b data-count="24" data-suf="/7">0</b><span data-i="s3"></span></div>
+    </div>
+    <p class="note" data-i="sn"></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap"><p class="lit" id="lit"></p></div>
+</section>
+
+<section id="btn">
+  <div class="wrap">
+    <div class="head rv"><span class="eyebrow" data-i="e2"></span><h2 data-i="t2"></h2><p class="lead" data-i="l2"></p></div>
+    <div class="labgrid">
+      <div class="cell rv"><button class="btn b1" type="button" data-i="k1"></button></div>
+      <div class="cell rv"><button class="btn b2" type="button" data-i="k2"></button></div>
+      <div class="cell rv"><button class="btn b3" type="button" data-i="k3"></button></div>
+      <div class="cell rv"><button class="btn b4" type="button" data-i="k4"></button></div>
+      <div class="cell rv"><button class="btn b5" type="button"><span data-i="k5"></span><span class="arr">→</span></button></div>
+      <div class="cell rv"><button class="btn b6" type="button" data-i="k6"></button></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="cta rv"><i></i><i></i>
+      <h2 data-i="ct"></h2>
+      <p class="lead" data-i="cl"></p>
+      <div class="row">
+        <a class="btn btn-main mag" href="https://t.me/andreyz076" target="_blank" rel="noopener" data-i="cb1"></a>
+        <a class="btn btn-line mag" href="https://vizytko.github.io/demo-salon/" target="_blank" rel="noopener" data-i="cb2"></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span data-i="foot"></span></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" integrity="sha384-9EQoUIJYrv09/oYhSxnw1VpLcfPw3BM9dE7+D/3wGUPeLLa7F9Z6OAoD+i/M6FK9" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js" integrity="sha384-L0sjdcIWJ156WmvbxIBHx79j1WrCqANCyw456nl/aPWSYiHNywEU2VIAcbSJeIiX" crossorigin="anonymous"></script>
+<script>
+document.documentElement.classList.add("js");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fine = matchMedia("(pointer:fine)").matches;
+
+/* ---------- тексти ---------- */
+const T = {
+  uk: {
+    badge: "Галерея ефектів", h1: "Сайти, які рухаються",
+    sub: "Демо того, що ми можемо зробити для вашого сайту: 3D-фони, живі анімації й ефекти при наведенні. Усе під ваш бренд.",
+    order: "Замовити сайт", see: "Дивитись ефекти",
+    marq: ["3D-фони", "Анімований текст", "Магнітні кнопки", "Ефекти наведення", "Плавні появи", "Градієнти"],
+    e1: "Ефекти", t1: "Наведіть курсор", l1: "Кожна картка — окремий ефект. Ми підбираємо ті, що пасують бренду, і не перевантажуємо сайт.",
+    c1t: "Підсвітка за курсором", c1d: "Світло слідує за мишкою",
+    c2t: "3D-нахил", c2d: "Картка реагує на рух",
+    c3t: "Живий контур", c3d: "Градієнт обертається по краю",
+    c4t: "Текст-хакер", c4d: "Наведіть на слово",
+    c5t: "Магнітна кнопка", c5d: "Тягнеться до курсору", c5b: "Спробуй мене",
+    c6t: "Аврора", c6d: "Плавний кольоровий фон",
+    s1: "приклад показника", s2: "приклад показника", s3: "приклад показника",
+    sn: "Числа в блоці умовні: так виглядають лічильники, що набігають при прокручуванні.",
+    lit: "Хороший сайт не просто показує інформацію. Він створює настрій, веде погляд і змушує запам'ятати бренд. Ми додаємо рух там, де він допомагає, а не заважає.",
+    e2: "Кнопки", t2: "Лабораторія кнопок", l2: "Шість різних характерів кнопки. Для сайту обираємо один-два, щоб він був цілісним.",
+    k1: "Блиск", k2: "Неон", k3: "Заливка", k4: "Градієнт", k5: "Стрілка", k6: "Натиск",
+    ct: "Хочете такі ефекти на своєму сайті?", cl: "Покажіть сайт, який вам подобається, і ми зробимо у схожому дусі. Дизайн підбираємо самі, вам лишається вносити правки.",
+    cb1: "Написати в Telegram", cb2: "Приклад: сайт салону",
+    foot: "© 2026 Vizytko · ефекти на чистому HTML, CSS і JS · 3D-фон: Vanta.js (MIT)"
+  },
+  en: {
+    badge: "Effects Lab", h1: "Websites that move",
+    sub: "A demo of what we can build for your site: 3D backgrounds, living animations and hover effects. All tailored to your brand.",
+    order: "Order a website", see: "See the effects",
+    marq: ["3D backgrounds", "Animated text", "Magnetic buttons", "Hover effects", "Smooth reveals", "Gradients"],
+    e1: "Effects", t1: "Move your cursor", l1: "Every card is a separate effect. We pick the ones that suit your brand and never overload the site.",
+    c1t: "Cursor spotlight", c1d: "Light follows the mouse",
+    c2t: "3D tilt", c2d: "The card reacts to movement",
+    c3t: "Living border", c3d: "A gradient orbits the edge",
+    c4t: "Scramble text", c4d: "Hover the word",
+    c5t: "Magnetic button", c5d: "It leans toward the cursor", c5b: "Try me",
+    c6t: "Aurora", c6d: "A smooth color background",
+    s1: "sample metric", s2: "sample metric", s3: "sample metric",
+    sn: "The numbers are placeholders: this is how counters that run up on scroll look.",
+    lit: "A good website doesn’t just show information. It sets a mood, guides the eye and makes a brand memorable. We add motion where it helps, not where it gets in the way.",
+    e2: "Buttons", t2: "Button lab", l2: "Six button personalities. For a real site we pick one or two so it feels cohesive.",
+    k1: "Shimmer", k2: "Neon", k3: "Liquid", k4: "Gradient", k5: "Arrow", k6: "Press",
+    ct: "Want effects like these on your site?", cl: "Show us a site you like and we’ll build something in the same spirit. We choose the design ourselves, you just send tweaks.",
+    cb1: "Message on Telegram", cb2: "Example: salon website",
+    foot: "© 2026 Vizytko · effects in plain HTML, CSS and JS · 3D background: Vanta.js (MIT)"
+  }
+};
+let lang = (() => {
+  const q = new URLSearchParams(location.search).get("lang");
+  if (q === "uk" || q === "en") return q;
+  try { const s = localStorage.getItem("lang"); if (s === "uk" || s === "en") return s; } catch (e) {}
+  return (navigator.language || "uk").slice(0, 2) === "uk" ? "uk" : "en";
+})();
+
+const h1 = document.getElementById("h1"), track = document.getElementById("track"), lit = document.getElementById("lit");
+function setLang(l) {
+  lang = l; const t = T[l];
+  document.documentElement.lang = l;
+  document.title = l === "uk" ? "Галерея ефектів — Vizytko Effects Lab" : "Effects Lab — Vizytko";
+  document.querySelectorAll("[data-i]").forEach(el => { el.textContent = t[el.dataset.i]; });
+  document.querySelectorAll(".b5 [data-i]").forEach(el => el.textContent = t[el.dataset.i]);
+  // заголовок слово за словом
+  h1.classList.remove("in");
+  h1.innerHTML = t.h1.split(" ").map((w, i) => `<span class="w" style="--i:${i}">${w}</span>`).join(" ");
+  requestAnimationFrame(() => requestAnimationFrame(() => h1.classList.add("in")));
+  // стрічка
+  const items = t.marq.map(s => `<span>${s}</span>`).join("");
+  track.innerHTML = items + items + items + items;
+  // текст зі спалахом
+  lit.innerHTML = t.lit.split(" ").map(w => `<span>${w}</span>`).join(" ");
+  litWords = [...lit.children]; onScroll();
+  document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
+  try { localStorage.setItem("lang", l); } catch (e) {}
+}
+let litWords = [];
+
+/* ---------- 3D-фон Vanta (запасний варіант: CSS-градієнт) ---------- */
+const mobile = innerWidth < 700;
+try {
+  if (!reduce && window.VANTA) VANTA.NET({
+    el: "#vanta", mouseControls: fine, touchControls: false, gyroControls: false,
+    minHeight: 200, minWidth: 200, scale: 1, scaleMobile: 1,
+    color: 0x8b5cf6, backgroundColor: 0x07070c,
+    points: mobile ? 7 : 11, maxDistance: mobile ? 18 : 22, spacing: mobile ? 22 : 17, showDots: true
+  });
+} catch (e) { /* без WebGL залишається градієнт */ }
+
+/* ---------- світіння за курсором і ефекти карток ---------- */
+const cur = document.getElementById("cur");
+if (fine && !reduce) {
+  addEventListener("pointermove", e => { cur.style.opacity = 1; cur.style.transform = `translate(${e.clientX}px,${e.clientY}px)`; }, { passive: true });
+}
+document.querySelectorAll("[data-spot]").forEach(c => c.addEventListener("pointermove", e => {
+  const r = c.getBoundingClientRect(); c.style.setProperty("--mx", e.clientX - r.left + "px"); c.style.setProperty("--my", e.clientY - r.top + "px");
+}));
+document.querySelectorAll("[data-tilt]").forEach(c => {
+  c.addEventListener("pointermove", e => {
+    if (reduce) return; const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    c.style.transform = `perspective(800px) rotateY(${(x - .5) * 18}deg) rotateX(${(.5 - y) * 18}deg) scale(1.02)`;
+    c.style.setProperty("--gx", x * 100 + "%"); c.style.setProperty("--gy", y * 100 + "%");
+  });
+  c.addEventListener("pointerleave", () => { c.style.transform = ""; });
+});
+
+/* магнітні кнопки */
+if (fine && !reduce) document.querySelectorAll(".mag").forEach(b => {
+  b.addEventListener("pointermove", e => {
+    const r = b.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    b.style.transform = `translate(${dx * .25}px,${dy * .35}px)`;
+  });
+  b.addEventListener("pointerleave", () => { b.style.transform = ""; b.style.transition = "transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .3s, background .3s"; setTimeout(() => b.style.transition = "", 450); });
+});
+
+/* текст, що «розшифровується» */
+const scr = document.getElementById("scr"), CH = "!<>-_\\/[]{}=+*^?#ABCDEFGHJKLMNOPQRSTUVWXYZ";
+let scrBusy = false;
+function scramble() {
+  if (scrBusy || reduce) return; scrBusy = true; const final = "VIZYTKO"; let f = 0;
+  const id = setInterval(() => {
+    scr.textContent = [...final].map((ch, i) => i < f / 3 ? ch : CH[Math.floor(Math.random() * CH.length)]).join("");
+    if (++f > final.length * 3) { clearInterval(id); scr.textContent = final; scrBusy = false; }
+  }, 40);
+}
+scr.addEventListener("pointerenter", scramble); scr.addEventListener("focus", scramble);
+
+/* ---------- поява, лічильники, текст при скролі ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .15 });
+document.querySelectorAll(".rv").forEach(el => io.observe(el));
+const cio = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return; cio.unobserve(e.target);
+  const el = e.target, end = +el.dataset.count, suf = el.dataset.suf || "";
+  if (reduce) { el.textContent = end.toLocaleString("uk") + suf; return; }
+  const t0 = performance.now(), dur = 1500;
+  (function tick(now) { const p = Math.min(1, (now - t0) / dur), v = Math.round(end * (1 - Math.pow(1 - p, 3))); el.textContent = v.toLocaleString("uk") + suf; if (p < 1) requestAnimationFrame(tick); })(t0);
+}), { threshold: .6 });
+document.querySelectorAll("[data-count]").forEach(el => cio.observe(el));
+
+function onScroll() {
+  if (!litWords.length) return;
+  const r = lit.getBoundingClientRect(), p = Math.min(1, Math.max(0, (innerHeight * .8 - r.top) / (r.height + innerHeight * .3)));
+  const n = Math.round(p * litWords.length * 1.1);
+  litWords.forEach((w, i) => w.classList.toggle("on", reduce || i < n));
+}
+const topbar = document.querySelector("header.top");
+addEventListener("scroll", () => { onScroll(); topbar.classList.toggle("solid", scrollY > 40); }, { passive: true });
+
+document.querySelectorAll("[data-lang]").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+setLang(lang);
+</script>
+</body>
+</html>
